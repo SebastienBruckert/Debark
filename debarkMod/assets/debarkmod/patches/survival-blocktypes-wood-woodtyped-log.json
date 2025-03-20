@@ -1,0 +1,11 @@
+[
+  {
+    "op": "add",
+    "path": "/behaviorsByType/*/3",
+    "value": {
+      "name": "DebarkMod_Behavior"
+    },
+    "file": "game:blocktypes/wood/woodtyped/log.json",
+    "side": "Server"
+  }
+]
