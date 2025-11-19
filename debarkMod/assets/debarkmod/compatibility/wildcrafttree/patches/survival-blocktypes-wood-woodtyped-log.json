@@ -5,7 +5,7 @@
     "value": [{
       "name": "DebarkMod_Behavior"
     }],
-    "file": "game:blocktypes/wood/woodtyped/log.json",
+    "file": "wildcrafttree:blocktypes/wood/woodtyped/log.json",
     "side": "Server"
   },
   {
@@ -14,7 +14,7 @@
     "value": [{
       "name": "DebarkMod_Behavior"
     }],
-    "file": "game:blocktypes/wood/woodtyped/log.json",
+    "file": "wildcrafttree:blocktypes/wood/woodtyped/log.json",
     "side": "Server"
   }
 ]
