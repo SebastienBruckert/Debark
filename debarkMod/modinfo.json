@@ -8,6 +8,6 @@
     "description": "Allow to debark logs in-world with an axe.",
     "version": "1.1.1",
     "dependencies": {
-        "game": "1.20.0"
+        "game": "1.21.5"
     }
 }
