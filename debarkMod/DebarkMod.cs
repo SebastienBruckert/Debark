@@ -11,6 +11,7 @@ public class DebarkMod : ModSystem
     public static ICoreAPI CoreAPI;
     public static ICoreClientAPI ClientAPI;
     public Harmony harmony;
+    public static bool jacksadzeModLoaded;
 
 
     public override void Start(ICoreAPI api)
@@ -23,6 +24,7 @@ public class DebarkMod : ModSystem
         }
         CoreAPI.RegisterBlockBehaviorClass("DebarkMod_Behavior", typeof(LogBehavior));
         CoreAPI.Logger.Notification("DebarkMod: Started.");
+        jacksadzeModLoaded = api.ModLoader.IsModEnabled("jacksadze");
     }
 
     public override void StartServerSide(ICoreServerAPI api)
@@ -39,15 +41,22 @@ public class DebarkMod : ModSystem
 [HarmonyPatch(typeof(Block), nameof(Block.GetPlacedBlockInteractionHelp))]
 internal class BlockLog_GetPlacedBlockInteractionHelp_Patch
 {
-    private static List<ItemStack> axeItems = new List<ItemStack>();
+    private static List<ItemStack> toolItems = new List<ItemStack>();
     public static void Postfix(ref WorldInteraction[] __result, IWorldAccessor world, BlockSelection selection, IPlayer forPlayer)
     {
-        if (axeItems.Count == 0) {
-            Item[] axes = world.SearchItems(new AssetLocation("axe-*"));
-            foreach(Item item in axes) axeItems.Add(new ItemStack(item));
+        if (toolItems.Count == 0) {
+            if (DebarkMod.jacksadzeModLoaded == false)
+            {
+                Item[] axes = world.SearchItems(new AssetLocation("axe-*"));
+                foreach(Item item in axes) toolItems.Add(new ItemStack(item));
+            } else
+            {
+                Item[] hoes = world.SearchItems(new AssetLocation("hoe-*"));
+                foreach(Item item in hoes) toolItems.Add(new ItemStack(item));
+            }
         }
         string ActionLangCode = "Debark log";
-        if (ModConfig.configData.needHammerInOffhand == true) {
+        if (DebarkMod.jacksadzeModLoaded == false && ModConfig.configData.needHammerInOffhand == true) {
             ActionLangCode += " (Requires hammer in offhand)";
         }
 
@@ -60,7 +69,7 @@ internal class BlockLog_GetPlacedBlockInteractionHelp_Patch
             {
                 ActionLangCode = ActionLangCode,
                 MouseButton = EnumMouseButton.Right,
-                Itemstacks = axeItems.ToArray(),
+                Itemstacks = toolItems.ToArray(),
             });
         }
     }

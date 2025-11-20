@@ -54,30 +54,66 @@ class LogBehavior : BlockBehavior
         return offHandSlot.Itemstack.Collectible.Tool == EnumTool.Hammer;
     }
 
-    public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
+    private void defaultBehavior(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
     {
         Block block = world.BlockAccessor.GetBlock(blockSel.Position);
-        //DebarkMod.CoreAPI.Logger.Debug("Block interacted: " + block.Code.GetName());
-        if (ModConfig.configData.needHammerInOffhand == true && ! IsHoldingHammerInOffhand(byPlayer)) {
-            //DebarkMod.CoreAPI.Logger.Debug("Need hammer in off-hand!");
-            return false;
-        }
         if (isValidLog(block.Code.GetName())
          && byPlayer.InventoryManager.ActiveTool == EnumTool.Axe)
         {
-            Block debarkedBlock = world.GetBlock(new AssetLocation(block.Code.Domain, getDebarkedLog(block.Code.CodePartsAfterSecond())));
-            world.BlockAccessor.SetBlock(debarkedBlock.BlockId, blockSel.Position);
-            long randomsound = world.Rand.Next(1, 3);
-            world.PlaySoundAt(new AssetLocation("sounds/block/chop" + randomsound), byPlayer, byPlayer, true, 8);
-            byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack.Item.DamageItem(world, byPlayer.Entity, byPlayer.InventoryManager.ActiveHotbarSlot);
+            debarkLog(block, world, byPlayer, blockSel);
             ItemSlot offHandSlot = byPlayer.InventoryManager.GetHotbarInventory().Last();
             if (ModConfig.configData.needHammerInOffhand == true && offHandSlot?.Itemstack?.Item != null) {
                 offHandSlot.Itemstack.Item.DamageItem(world, byPlayer.Entity, offHandSlot);
             }
             handling = EnumHandling.Handled;
-            return true;
         }
-        handling = EnumHandling.PassThrough;
+        else
+        {
+            handling = EnumHandling.PassThrough;
+        }
+    }
+
+    private void jacksadzeModBehavior(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
+    {
+        Block block = world.BlockAccessor.GetBlock(blockSel.Position);
+        if (isValidLog(block.Code.GetName())
+         && byPlayer.InventoryManager.ActiveTool == EnumTool.Hoe)
+        {
+            DebarkMod.CoreAPI.Logger.Debug("Debarking ??");
+            debarkLog(block, world, byPlayer, blockSel);
+            handling = EnumHandling.Handled;
+        }
+        else
+        {
+            handling = EnumHandling.PassThrough;
+        }
+    }
+
+    private void debarkLog(Block block, IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel)
+    {
+        Block debarkedBlock = world.GetBlock(new AssetLocation(block.Code.Domain, getDebarkedLog(block.Code.CodePartsAfterSecond())));
+        world.BlockAccessor.SetBlock(debarkedBlock.BlockId, blockSel.Position);
+        long randomsound = world.Rand.Next(1, 3);
+        world.PlaySoundAt(new AssetLocation("sounds/block/chop" + randomsound), byPlayer, byPlayer, true, 8);
+        byPlayer.InventoryManager.ActiveHotbarSlot.Itemstack.Item.DamageItem(world, byPlayer.Entity, byPlayer.InventoryManager.ActiveHotbarSlot);
+    }
+
+    public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
+    {
+        Block block = world.BlockAccessor.GetBlock(blockSel.Position);
+        //DebarkMod.CoreAPI.Logger.Debug("Block interacted: " + block.Code.GetName());
+        if (DebarkMod.jacksadzeModLoaded == false) {
+            if (ModConfig.configData.needHammerInOffhand == true && ! IsHoldingHammerInOffhand(byPlayer)) {
+                //DebarkMod.CoreAPI.Logger.Debug("Need hammer in off-hand!");
+                return false;
+            }
+            defaultBehavior(world, byPlayer, blockSel, ref handling);
+            DebarkMod.CoreAPI.Logger.Debug("Default Behavior");
+        }
+        else {
+            jacksadzeModBehavior(world, byPlayer, blockSel, ref handling);
+            DebarkMod.CoreAPI.Logger.Debug("Jacksadze Behavior");
+        }
         return true;
     }
 }
