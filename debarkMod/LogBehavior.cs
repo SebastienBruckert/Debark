@@ -10,7 +10,15 @@ class LogBehavior : BlockBehavior
 
     static public bool isValidLog(string name)
     {
-        return name.StartsWith("log-");
+        DebarkMod.CoreAPI.Logger.Debug(name);
+        bool ret = false;
+        if (name.StartsWith("log-")) {
+            ret = true;
+        }
+        if (ModConfig.configData.canDebarkTree == false && name.Contains("-grown-")) {
+            ret = false;
+        }
+        return ret;
     }
 
     static public string getDebarkedLog(string variant)
