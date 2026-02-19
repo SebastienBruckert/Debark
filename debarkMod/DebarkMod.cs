@@ -44,6 +44,7 @@ internal class BlockLog_GetPlacedBlockInteractionHelp_Patch
     private static List<ItemStack> toolItems = new List<ItemStack>();
     public static void Postfix(ref WorldInteraction[] __result, IWorldAccessor world, BlockSelection selection, IPlayer forPlayer)
     {
+        Block block = world.BlockAccessor.GetBlock(selection.Position);
         if (toolItems.Count == 0) {
             if (DebarkMod.jacksadzeModLoaded == false)
             {
@@ -61,8 +62,8 @@ internal class BlockLog_GetPlacedBlockInteractionHelp_Patch
         }
 
         //if (world.Config.GetBool("needHammerInOffhand", false)) {
-        Block block = world.BlockAccessor.GetBlock(selection.Position);
         //WorldInteraction[] interactions = block.GetPlacedBlockInteractionHelp(world, selection, forPlayer);
+        //DebarkMod.CoreAPI.Logger.Debug(block.Code.ToString());
         if (block != null && block.Code != null && LogBehavior.isValidLog(block.Code.GetName()))
         {
             __result = __result.Append(new WorldInteraction()

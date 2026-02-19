@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Vintagestory.API.Common;
 
@@ -8,11 +9,16 @@ class LogBehavior : BlockBehavior
 
     }
 
+    static public bool isResinLog(string name)
+    {
+        return name.Contains("-resin-") || name.Contains("-resinharvested-");
+    }
+
     static public bool isValidLog(string name)
     {
-        DebarkMod.CoreAPI.Logger.Debug(name);
+        //DebarkMod.CoreAPI.Logger.Debug(name);
         bool ret = false;
-        if (name.StartsWith("log-")) {
+        if (name.StartsWith("log-") && ! isResinLog(name)) {
             ret = true;
         }
         if (ModConfig.configData.canDebarkTree == false && name.Contains("-grown-")) {
@@ -50,7 +56,7 @@ class LogBehavior : BlockBehavior
             //DebarkMod.CoreAPI.Logger.Debug("No hotbar offhand item");
             return false;
         }
-        //DebarkMod.CoreAPI.Logger.Debug("Item in offhand " + offHandSlot.GetStackName());
+        //DebarkMod.CoreAPI.Logger.Debug("Item in offhand " + offHandSlot.Itemstack.Item.Code.ToString());
         return offHandSlot.Itemstack.Collectible.Tool == EnumTool.Hammer;
     }
 
@@ -79,7 +85,6 @@ class LogBehavior : BlockBehavior
         if (isValidLog(block.Code.GetName())
          && byPlayer.InventoryManager.ActiveTool == EnumTool.Hoe)
         {
-            DebarkMod.CoreAPI.Logger.Debug("Debarking ??");
             debarkLog(block, world, byPlayer, blockSel);
             handling = EnumHandling.Handled;
         }
@@ -101,18 +106,18 @@ class LogBehavior : BlockBehavior
     public override bool OnBlockInteractStart(IWorldAccessor world, IPlayer byPlayer, BlockSelection blockSel, ref EnumHandling handling)
     {
         Block block = world.BlockAccessor.GetBlock(blockSel.Position);
-        //DebarkMod.CoreAPI.Logger.Debug("Block interacted: " + block.Code.GetName());
+
         if (DebarkMod.jacksadzeModLoaded == false) {
             if (ModConfig.configData.needHammerInOffhand == true && ! IsHoldingHammerInOffhand(byPlayer)) {
                 //DebarkMod.CoreAPI.Logger.Debug("Need hammer in off-hand!");
                 return false;
             }
             defaultBehavior(world, byPlayer, blockSel, ref handling);
-            DebarkMod.CoreAPI.Logger.Debug("Default Behavior");
+            //DebarkMod.CoreAPI.Logger.Debug("Default Behavior");
         }
         else {
             jacksadzeModBehavior(world, byPlayer, blockSel, ref handling);
-            DebarkMod.CoreAPI.Logger.Debug("Jacksadze Behavior");
+            //DebarkMod.CoreAPI.Logger.Debug("Jacksadze Behavior");
         }
         return true;
     }
